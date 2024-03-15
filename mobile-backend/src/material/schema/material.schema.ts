@@ -12,7 +12,7 @@ export class Material implements IMaterial {
     id: string;
 
     @Expose()
-    @Prop({ required: true })
+    @Prop()
     title: string;
 
     @Expose()

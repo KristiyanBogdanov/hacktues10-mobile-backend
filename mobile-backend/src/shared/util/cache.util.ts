@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-const cacheDir = `../cache/`;
+const cacheDir = `../files/`;
 
 export const checkCacheDirectoryExistence = () => {
     if (fs.existsSync(cacheDir)) {

@@ -18,6 +18,12 @@ export class UserController {
         return await this.userService.fetchData(payload.id);
     }
 
+    @Get('/materials')
+    async fetchMaterials(@Req() request: Request): Promise<MaterialDto[]> {
+        const payload = request.user as JwtPayload;
+        return await this.userService.fetchMaterials(payload.id);
+    }
+
     @UseInterceptors(FilesInterceptor('files'))
     @Post('/materials/mp3')
     async createMaterialFromMP3(@Req() request: Request, @UploadedFiles() files: Express.Multer.File[], @Body() materialData: AddMaterialReq): Promise<MaterialDto> {

@@ -14,10 +14,10 @@ export class OpenAIApi {
     }
 
     summarizeText(): string {
-        return this.createApiEndpoint(`/summarize`);
+        return this.createApiEndpoint(`summarize`);
     }
 
     createPlan(): string {
-        return this.createApiEndpoint(`/plan`);
+        return this.createApiEndpoint(`plan`);
     }
 }

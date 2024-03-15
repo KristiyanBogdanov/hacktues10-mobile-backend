@@ -50,15 +50,18 @@ export class UserService {
         return this.mapToUserDto(user);
     }
 
-    private async sendRequestToOpenAI(text: string): Promise<[SummarizeTextRes, CreatePlanRes]> {
-        return Promise.all([
-            lastValueFrom(this.httpService.post<SummarizeTextRes>(
-                this.openAIApi.summarizeText(), { text: text })
-            ).then((response) => response.data),
-            lastValueFrom(this.httpService.post<CreatePlanRes>(
-                this.openAIApi.createPlan(), { text: text })
-            ).then((response) => response.data)
-        ]);
+    private async sendRequestToOpenAI(text: string): Promise<any> {
+        console.log('sendRequestToOpenAI...');
+        // return Promise.all([
+        //     lastValueFrom(this.httpService.post<SummarizeTextRes>(
+        //         this.openAIApi.summarizeText(), { text: text })
+        //     ).then((response) => response.data),
+        //     lastValueFrom(this.httpService.post<CreatePlanRes>(
+        //         this.openAIApi.createPlan(), { text: text })
+        //     ).then((response) => response.data)
+        // ]);
+
+        return ['a', 'b'];
     }
 
     async createMaterialFromMP3(userId: string, audio: Express.Multer.File, materialData: AddMaterialReq): Promise<MaterialDto> {
@@ -74,18 +77,22 @@ export class UserService {
         createFileContentCache(filename, audio.buffer);
 
         const whisperResult = await lastValueFrom(
-            this.httpService.get<GenerateTextFromSpeechRes>(this.whisperApi.generateTextFromSpeech(filename))
+            this.httpService.post<GenerateTextFromSpeechRes>(
+                this.whisperApi.generateTextFromSpeech(),
+                {
+                    filename: filename,
+                }
+            )
         ).then((response) => response.data);
 
+        console.log(whisperResult);
 
-        const [[summary, plan], audioUrl] = await Promise.all([
-            this.sendRequestToOpenAI(whisperResult.results[0].transcript),
-            this.azureService.uploadFile('audio', audio)
-        ]);
+        const [summary, plan] = await this.sendRequestToOpenAI(whisperResult.transcript);
+        const audioUrl = await this.azureService.uploadFile('audio', audio);
 
         const material = new Material({
             ...materialData,
-            audioUrl: audioUrl,
+            audioUrl: '',
             summary: summary.message,
             plan: plan.message,
             tags: plan.tags,
@@ -175,5 +182,15 @@ export class UserService {
         await user.save();
 
         return plainToClass(QuestionDto, question);
+    }
+
+    async fetchMaterials(userId: string): Promise<MaterialDto[]> {
+        const user = await this.userRepository.findById(userId);
+
+        if (!user) {
+            throw new NotFoundException();
+        }
+
+        return user.materials.map((material) => plainToClass(MaterialDto, material));
     }
 }

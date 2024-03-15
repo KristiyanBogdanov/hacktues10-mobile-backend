@@ -13,7 +13,7 @@ export class WhisperApi {
         return `${this.baseUrl}/${apiPath}`;
     }
 
-    generateTextFromSpeech(filename: string): string {
-        return this.createApiEndpoint(`/${filename}`);
+    generateTextFromSpeech(): string {
+        return this.createApiEndpoint(`stt`);
     }
 }

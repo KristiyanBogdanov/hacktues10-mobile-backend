@@ -7,5 +7,4 @@ export class UserDto extends PickType(User, [
     'id',
     'username',
     'email',
-    'materials'
 ]) { }
