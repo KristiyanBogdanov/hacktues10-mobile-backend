@@ -17,14 +17,10 @@ export class Material implements IMaterial {
 
     @Expose()
     @Prop({ required: true })
-    description: string;
-
-    @Expose()
-    @Prop({ required: true })
     createdAt: Date;
 
     @Expose()
-    @Prop({ required: true })
+    @Prop()
     audioUrl: string
 
     @Expose()

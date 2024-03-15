@@ -3,7 +3,6 @@ import { IQuestion } from './question.interface';
 export interface IMaterial {
     id: string;
     title: string;
-    description: string;
     createdAt: Date;
     audioUrl: string;
     text: string;

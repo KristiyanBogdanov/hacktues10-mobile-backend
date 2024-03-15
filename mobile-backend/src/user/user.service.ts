@@ -52,16 +52,14 @@ export class UserService {
 
     private async sendRequestToOpenAI(text: string): Promise<any> {
         console.log('sendRequestToOpenAI...');
-        // return Promise.all([
-        //     lastValueFrom(this.httpService.post<SummarizeTextRes>(
-        //         this.openAIApi.summarizeText(), { text: text })
-        //     ).then((response) => response.data),
-        //     lastValueFrom(this.httpService.post<CreatePlanRes>(
-        //         this.openAIApi.createPlan(), { text: text })
-        //     ).then((response) => response.data)
-        // ]);
-
-        return ['a', 'b'];
+        return Promise.all([
+            lastValueFrom(this.httpService.post<SummarizeTextRes>(
+                this.openAIApi.summarizeText(), { text: text })
+            ).then((response) => response.data),
+            lastValueFrom(this.httpService.post<CreatePlanRes>(
+                this.openAIApi.createPlan(), { text: text })
+            ).then((response) => response.data)
+        ]);
     }
 
     async createMaterialFromMP3(userId: string, audio: Express.Multer.File, materialData: AddMaterialReq): Promise<MaterialDto> {
@@ -90,9 +88,13 @@ export class UserService {
         const [summary, plan] = await this.sendRequestToOpenAI(whisperResult.transcript);
         const audioUrl = await this.azureService.uploadFile('audio', audio);
 
+        console.log(summary);
+        console.log(plan);
+
         const material = new Material({
             ...materialData,
-            audioUrl: '',
+            audioUrl: audioUrl,
+            text: whisperResult.transcript,
             summary: summary.message,
             plan: plan.message,
             tags: plan.tags,
@@ -120,10 +122,13 @@ export class UserService {
             this.httpService.get<string>(this.fileReaderApi.convertToPlainText(filename))
         ).then((response) => response.data);
 
+        console.log(text);
+
         const [summary, plan] = await this.sendRequestToOpenAI(text);
 
         const material = new Material({
             ...materialData,
+            text: text,
             summary: summary.message,
             plan: plan.message,
             tags: plan.tags,
@@ -192,5 +197,21 @@ export class UserService {
         }
 
         return user.materials.map((material) => plainToClass(MaterialDto, material));
+    }
+
+    async fetchMaterial(userId: string, materialId: string): Promise<MaterialDto> {
+        const user = await this.userRepository.findById(userId);
+
+        if (!user) {
+            throw new NotFoundException();
+        }
+
+        const material = user.materials.find((material) => material.id === materialId);
+
+        if (!material) {
+            throw new NotFoundException();
+        }
+
+        return plainToClass(MaterialDto, material);
     }
 }

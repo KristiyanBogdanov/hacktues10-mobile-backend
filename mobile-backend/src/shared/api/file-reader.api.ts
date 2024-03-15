@@ -14,6 +14,6 @@ export class FileReaderApi {
     }
 
     convertToPlainText(filename: string): string {
-        return this.createApiEndpoint(`/${filename}`);
+        return this.createApiEndpoint(`${filename}`);
     }
 }

@@ -24,6 +24,12 @@ export class UserController {
         return await this.userService.fetchMaterials(payload.id);
     }
 
+    @Get('/materials/:materialId')
+    async fetchMaterial(@Req() request: Request, @Param('materialId', ValidateMongoId) materialId: string): Promise<MaterialDto> {
+        const payload = request.user as JwtPayload;
+        return await this.userService.fetchMaterial(payload.id, materialId);
+    }
+
     @UseInterceptors(FilesInterceptor('files'))
     @Post('/materials/mp3')
     async createMaterialFromMP3(@Req() request: Request, @UploadedFiles() files: Express.Multer.File[], @Body() materialData: AddMaterialReq): Promise<MaterialDto> {
@@ -31,10 +37,11 @@ export class UserController {
         return await this.userService.createMaterialFromMP3(payload.id, files[0], materialData);
     }
 
+    @UseInterceptors(FilesInterceptor('files'))
     @Post('/materials/text')
-    async createMaterialFromText(@Req() request: Request, @UploadedFiles() textFile: Express.Multer.File, @Body() materialData: AddMaterialReq): Promise<MaterialDto> {
+    async createMaterialFromText(@Req() request: Request, @UploadedFiles() textFile: Express.Multer.File[], @Body() materialData: AddMaterialReq): Promise<MaterialDto> {
         const payload = request.user as JwtPayload;
-        return await this.userService.createMaterialFromText(payload.id, textFile, materialData);
+        return await this.userService.createMaterialFromText(payload.id, textFile[0], materialData);
     }
 
     @Post('/materials/:materialId/questions')

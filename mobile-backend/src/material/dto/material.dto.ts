@@ -6,7 +6,6 @@ import { Exclude } from 'class-transformer';
 export class MaterialDto extends PickType(Material, [
     'id',
     'title',
-    'description',
     'createdAt',
     'audioUrl',
     'text',
